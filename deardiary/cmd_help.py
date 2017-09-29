@@ -11,8 +11,8 @@ Creates a new Glue and Stickers project in the current directory.
 $ deardiary refresh
 Regenerates static serve files.
 
-$ deardiary context
-Prints the current Glue and Stickers context.
+$ deardiary info
+Prints info about the current Glue and Stickers context.
 
 $ deardiary serve [port]
 Serves the site locally for preview.
