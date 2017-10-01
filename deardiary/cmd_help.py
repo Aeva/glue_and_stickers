@@ -1,7 +1,7 @@
 
 import inspect
 from cmd_common import register
-from cmd_common import COMMANDS, HELP_TEXT
+from cmd_common import COMMANDS
 
 
 # @register("help", None)
@@ -23,20 +23,23 @@ from cmd_common import COMMANDS, HELP_TEXT
 # """)
 
 
-@register("help", None)
+@register
 def help():
-    commands = [i for i in HELP_TEXT.keys()]
+    commands = [i for i in COMMANDS.keys()]
     commands.sort()
     messages = []
     pattern = "$ deardiary {} {}\n{}"
     for command in commands:
-        help_text = HELP_TEXT.get(command)
-        if not help_text:
-            continue
-
         function = COMMANDS.get(command)
+
+        if not function.__doc__:
+            continue
+        lines = function.__doc__.split("\n")
+        reflow = [line for line in map(str.strip, lines) if line]
+        help_text = "\n".join(reflow)
+
         arguments = " ".join(inspect.getargspec(function)[0])
-        message = pattern.format(command, arguments, help_text.strip())
+        message = pattern.format(command, arguments, help_text)
         messages.append(message)
 
     print("\n\n".join(messages) + "\n")

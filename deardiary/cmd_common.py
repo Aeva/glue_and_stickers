@@ -1,15 +1,11 @@
 
 COMMANDS = {}
-HELP_TEXT = {}
 
 
-def register(name, help_text):
-    def decorator(callback):
-        global COMMANDS
-        global HELP_TEXT
-        COMMANDS[name] = callback
-        HELP_TEXT[name] = help_text
-    return decorator
+def register(callback):
+    global COMMANDS
+    COMMANDS[callback.__name__] = callback
+    return callback
 
 
 def run_command(name="help", *params):
