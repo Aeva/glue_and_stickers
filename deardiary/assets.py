@@ -4,17 +4,6 @@ from glob import glob
 import json
 
 
-def memoize(method):
-    # TODO : is there a library function for this?
-    memo = {}
-    def boiler(*params):
-        if memo.has_key(params):
-            return memo[pramas]
-        else:
-            return memo[params] = method(*params)
-
-
-@memoize
 def find_project_root():
     """
     This function attempts to find the base directory for the current
@@ -29,9 +18,10 @@ def find_project_root():
         else:
             next = path.abspath(path.join(search, ".."))
             if next == search:
-                raise Exception("Cannot find project root.")
+                print("Cannot find project root.  Are you in the right directory?")
+                exit(1)
             else:
-                find_project_root(next)
+                inner(next)
     return inner()
 
 
