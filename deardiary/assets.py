@@ -1,7 +1,7 @@
 
-from os import path
+import os
 from glob import glob
-import json
+from page import PageAccessor
 
 
 def find_project_root():
@@ -11,39 +11,41 @@ def find_project_root():
     """
 
     def inner(search=""):
-        check = path.join(search, ".glue_and_stickers")
-        if (path.isfile(check)):
-            return path.abspath(path.split(check)[0])
+        check = os.path.join(search, ".glue_and_stickers")
+        if (os.path.isfile(check)):
+            return os.path.abspath(os.path.split(check)[0])
     
         else:
-            next = path.abspath(path.join(search, ".."))
+            next = os.path.abspath(os.path.join(search, ".."))
             if next == search:
                 print("Cannot find project root.  Are you in the right directory?")
                 exit(1)
             else:
-                inner(next)
+                return inner(next)
+
     return inner()
 
 
-def open_page(page_path):
-    page_dir = path.split(page_path)[0]
-    meta_path = path.join(page_dir, "meta.json")
-    if path.isfile(meta_path):
-        with open(page_path, "r") as page_file:
-            # TODO : jinja or something
-            page_data = page_file.read()
-        with open(meta_path, "r") as meta_file:
-            # TODO : log an error if metadata is not well-formed
-            meta_data = json.load(meta_path)
-        return (page_dir, page_data, meta_data)
-    else:
-        # TODO : log a warning or something
-        return None
+def working_page():
+    page = PageAccessor(os.getcwd())
+    return page if page.is_valid else None
+
 
 def all_pages():
     root = find_project_root()
-    search = path.join(root, "**", "page.html")
+    search = os.path.join(root, "**", "page.html")
     for page_path in glob(search, recursive=True):
-        page = open_page(page_path)
-        if page:
+        page = PageAccessor(page_path)
+        if page.is_valid:
             yield page
+
+
+def latest_page(pages):
+    latest_page = None
+    for page in pages:
+        if not latest_page:
+            latest_page = page
+        else:
+            page.date_stamp > latest_page.date_stamp
+            latest_page = page
+    return latest_page

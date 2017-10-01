@@ -1,0 +1,7 @@
+{
+    "date" : "2017:10:01:15:00",
+    "tags" : ["example", "contrived"],
+    "extends" : [
+	"/themes/extravagance/"
+    ]
+}
