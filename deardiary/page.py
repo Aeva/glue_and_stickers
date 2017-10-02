@@ -1,6 +1,6 @@
 
+import os
 import sys
-import os.path
 import json
 from datetime import datetime
 from core import find_project_root
@@ -15,8 +15,9 @@ class Page:
     """
     TIMESTAMP_FORMAT = "%Y:%m:%d:%H:%M"
 
-    def __init__(self, page_root):
+    def __init__(self, page_root, quiet=False):
         global PAGE_CACHE
+        page_root = os.path.abspath(page_root)
         assert(os.path.exists(page_root))
         assert(PAGE_CACHE.get(page_root) is None)
         PAGE_CACHE[page_root] = self
@@ -36,8 +37,9 @@ class Page:
             with open(self.meta_path, "r") as meta_file:
                 self.meta_data = json.load(meta_file)
         except:
-            error = " --- Cannot open page:\n - {}\n - \n{}\n"
-            print(error.format(self.page_root, sys.exc_info()))
+            if not quiet:
+                error = " --- Cannot open page:\n - {}\n - \n{}\n"
+                print(error.format(self.page_root, sys.exc_info()))
 
     def __repr__(self):
         if self.is_valid:
@@ -106,12 +108,31 @@ class Page:
         else:
             return tuple()
 
+    def find(self, asset):
+        def find_in_path(asset, search_path):
+            for dir_path, dir_names, file_names in os.walk(search_path):
+                for file_name in file_names:
+                    if file_name == asset:
+                        return os.path.join(dir_path, file_name)
+        found = find_in_path(asset, self.page_root)
+        if found:
+            return found
+        else:
+            project_root = find_project_root()
+            for extend in self.extends:
+                path = os.path.join(extend, project_root)
+                page = access_page(path, True)
+                if page.is_valid:
+                    return page.find(asset)
+                else:
+                    found = find_in_path(asset, path)
+                    if found:
+                        return found
 
 
-
-def access_page(page_path):
+def access_page(page_path, quiet=False):
     page = PAGE_CACHE.get(page_path)
     if not page:
-        page = Page(page_path)
+        page = Page(page_path, quiet)
         PAGE_CACHE[page_path] = page
     return page

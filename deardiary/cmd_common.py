@@ -10,8 +10,8 @@ def register(callback):
 
 def run_command(name="help", *params):
     global COMMANDS
-    callback = COMMANDS.get(name, *params)
+    callback = COMMANDS.get(name)
     if callback:
-        callback()
+        callback(*params)
     else:
         COMMANDS["help"]()
