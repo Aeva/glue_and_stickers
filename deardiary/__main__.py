@@ -13,5 +13,9 @@ def load_plugins():
 
 
 if __name__ == "__main__":
+    if sys.version_info[0] < 3:
+        print("Glue and Stickers requires Python 3")
+        exit(1)
+    
     load_plugins()
     run_command(*sys.argv[1:])
