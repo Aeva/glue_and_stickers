@@ -6,6 +6,7 @@ from datetime import datetime
 from core import find_project_root
 
 import jinja2
+from bs4 import BeautifulSoup
 
 
 class PowerLoader(jinja2.BaseLoader):
@@ -113,7 +114,7 @@ class Page:
 
     @property
     def path(self):
-        return os.path.relpath(self.page_root, find_project_root())
+        return "/" + os.path.relpath(self.page_root, find_project_root())
 
     @property
     def tags(self):
@@ -133,6 +134,7 @@ class Page:
     def context(self):
         return {
             "published" : self.datetime,
+            "title" : self.slug,
             "slug" : self.slug,
             "tags" : self.tags,
         }
@@ -160,7 +162,9 @@ class Page:
 
     def render(self, global_context):
         template = self.jinja_env.get_template("page.html")
-        return template.render(**global_context, **self.context)
+        src = template.render(**global_context, **self.context)
+        soup = BeautifulSoup(src)
+        return soup.prettify()
         
 
 def access_page(page_path, quiet=False):

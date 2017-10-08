@@ -35,8 +35,12 @@ def render():
         "all_pages" : pages,
         "all_tags" : sorted(tags),
     }
-    for page in pages:
-        context["current_page"] = page == pages[-1]
+    for index, page in enumerate(pages):
+        is_last = page == pages[-1]
+        is_first = page == pages[0]
+        context["page_before"] = None if is_first else pages[index-1]
+        context["page_after"] = None if is_last else pages[index+1]
+        
         with open(page.render_path, "w") as out_file:
             out_file.write(page.render({**manual_context, **context}))
             
