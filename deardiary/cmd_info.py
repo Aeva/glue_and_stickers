@@ -40,11 +40,6 @@ def info():
         print("Current Page:")
         print_index([current], True)
 
-        # TODO : this is temporary debug code, and should be removed
-        # once we have a command for rendering templates
-        print("----------------------")
-        print(current.render())
-
     else:
         published = assets.published_pages()
         if published:
