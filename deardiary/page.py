@@ -114,7 +114,7 @@ class Page:
 
     @property
     def path(self):
-        return "/" + os.path.relpath(self.page_root, find_project_root())
+        return self.urlify(self.page_root)
 
     @property
     def tags(self):
@@ -138,6 +138,9 @@ class Page:
             "slug" : self.slug,
             "tags" : self.tags,
         }
+
+    def urlify(self, path):
+        return "/" + os.path.relpath(path, find_project_root())
 
     def find(self, asset):
         def find_in_path(asset, search_path):
@@ -164,6 +167,13 @@ class Page:
         template = self.jinja_env.get_template("page.html")
         src = template.render(**global_context, **self.context)
         soup = BeautifulSoup(src)
+        search = ["href", "src"]
+        for tag in soup.find_all(True):
+            for attr in search:
+                if tag.has_attr(attr):
+                    rewrite = self.find(tag.attrs[attr])
+                    if rewrite:
+                        tag.attrs[attr] = self.urlify(rewrite)
         return soup.prettify()
         
 
